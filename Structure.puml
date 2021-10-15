@@ -1,0 +1,63 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface IPropertyOperations<T> {
+    getName(): String
+    hasValue(): Boolean
+    getValue(): T
+    setValue(String)
+    getDefault(): T
+    setDefault(T)
+    isEnum(): Boolean
+    setEnum(Boolean)
+    addEnum(T)
+    getEnums(): List<T>
+    getDesc(): String
+    setDesc(String)
+}
+
+interface IRawProperty
+IPropertyOperations <|.. IRawProperty: <String>
+
+interface ISerializer<T> {
+    toStr(T): String
+    fromStr(String): T
+}
+
+interface IProperty<T> {
+    getRawProperty(): IRawProperty
+}
+IPropertyOperations <|.. IProperty: <T>
+IRawProperty <.. IProperty: <<use>>
+
+interface ICriticalSection {
+    lock()
+    unlock()
+}
+
+interface IStorage {
+    hasValue(String): boolean
+    cleanValue(String)
+    getValue(String): String
+    setValue(String, String)
+}
+
+interface IRegistry {
+    getCriticalSection(): ICriticalSection
+    getStorage(): IStorage
+}
+ICriticalSection <.. IRegistry: <<use>>
+IStorage         <.. IRegistry: <<use>>
+
+
+
+
+class LocalRegistry implements IRegistry
+
+class CommonProperty<T> implements IProperty {
+    rawProperty: IRawProperty
+    serializer: ISerializer<T>
+}
+ISerializer <.. CommonProperty: <<use>>
+
+@enduml
