@@ -17,6 +17,7 @@ public class CommonProperty<T, ThisT> implements IProperty<T, ThisT> {
     private final IRawProperty rawProperty;
     private final ISerializer<T> serializer;
 
+    @SuppressWarnings("unchecked")
     private ThisT thisType() {
         //noinspection unchecked
         return (ThisT) this;
@@ -28,7 +29,7 @@ public class CommonProperty<T, ThisT> implements IProperty<T, ThisT> {
     }
 
     public CommonProperty(final IRegistry registryInstance, final String name, final ISerializer<T> serializer) {
-        this(registryInstance.registerRawProperty(name), serializer);
+        this(registryInstance.registerRawProperty(name, serializer), serializer);
     }
 
     @NotNull
@@ -37,6 +38,7 @@ public class CommonProperty<T, ThisT> implements IProperty<T, ThisT> {
         return rawProperty.getName();
     }
 
+    @NotNull
     @Override
     public IRawProperty getRawProperty() {
         return rawProperty;
@@ -93,6 +95,13 @@ public class CommonProperty<T, ThisT> implements IProperty<T, ThisT> {
     @Override
     public ThisT addEnum(T enumValue) {
         rawProperty.addEnum(serializer.toStr(enumValue));
+        return thisType();
+    }
+
+    public ThisT addEnum(T...args) {
+        for (final T entry : args) {
+            this.addEnum(entry);
+        }
         return thisType();
     }
 

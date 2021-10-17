@@ -1,5 +1,8 @@
 package com.mjaron.mjregistry.core;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Generic container of properties.
  */
@@ -23,5 +26,16 @@ public interface IRegistry {
      * @param name Name of created property.
      * @return Instance of IRawProperty.
      */
-    IRawProperty registerRawProperty(final String name);
+    IRawProperty registerRawProperty(final String name, IValueFormatValidator validator);
+
+    /**
+     * @return List of property names available in this registry.
+     */
+    Collection<String> listProperties();
+
+    /**
+     * @param name Property name.
+     * @return Property instance.
+     */
+    IRawProperty getProperty(final String name);
 }

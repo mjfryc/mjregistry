@@ -14,14 +14,16 @@ public class LocalRawProperty implements IRawProperty {
 
     private final IRegistry mRegistry;
     private final String mName;
+    private final IValueFormatValidator mValidator;
     private String mDefaultValue = null;
     private boolean mIsEnum = false;
     private List<String> enumList = null;
     private String mDescription = "";
 
-    public LocalRawProperty(final IRegistry mRegistry, final String mName) {
+    public LocalRawProperty(final IRegistry mRegistry, final String name, final IValueFormatValidator validator) {
         this.mRegistry = mRegistry;
-        this.mName = mName;
+        this.mName = name;
+        this.mValidator = validator;
     }
 
     @NotNull
@@ -57,7 +59,8 @@ public class LocalRawProperty implements IRawProperty {
     }
 
     @Override
-    public Object set(String value) {
+    public Object set(final String value) {
+        this.validateValueRange(value);
         return mRegistry.getCriticalSection().returnWithLock(() -> {
             mRegistry.getStorage().setValue(mName, value);
             return null;
@@ -73,6 +76,7 @@ public class LocalRawProperty implements IRawProperty {
     @NotNull
     @Override
     public Object setDefault(String defaultValue) {
+        this.validateValueRange(defaultValue);
         this.mDefaultValue = defaultValue;
         return this;
     }
@@ -119,5 +123,28 @@ public class LocalRawProperty implements IRawProperty {
     public Object setDesc(String desc) {
         mDescription = desc;
         return this;
+    }
+
+    @NotNull
+    @Override
+    public IValueFormatValidator getFormatValidator() {
+        return null;
+    }
+
+    @Override
+    public void validateValueRange(String rawValue) {
+        if (mIsEnum) {
+            if ((enumList == null || enumList.isEmpty()) && rawValue != null) {
+                throw new RuntimeException("Given value is not valid: [" + rawValue + "]: valid enumerations list is empty.");
+            }
+            if (enumList != null && rawValue != null) {
+                for (final String entry : enumList) {
+                    if (entry.equals(rawValue)) {
+                        return;
+                    }
+                }
+                throw  new RuntimeException("Given value is not valid: [" + rawValue + "]: Enum values valid only: " + enumList);
+            }
+        }
     }
 }

@@ -20,6 +20,7 @@ public class Sample {
         static IntProperty APPLICATION_ACTIVE_USERS_COUNT = new IntProperty(r, "application.users").setDefault(1).setDesc("This is a sample Integer value.");
         static BooleanProperty APPLICATION_PRODUCTION_MODE = new BooleanProperty(r, "application.production").setDefault(false).setDesc("Defines whether application may be launched by the customer.");
         static StrProperty ACTIVE_USER_NAME = new StrProperty(r, "user.active.name");
+        static StrProperty DAYS = new StrProperty(r, "days").setEnum(true).addEnum("MONDAY", "TUESDAY", "WEDNESDAY");
 
         //... Thousands of other properties here.
     }
@@ -42,6 +43,18 @@ public class Sample {
 
         if (Registry.ACTIVE_USER_NAME.getOrNull() == null) {
             System.out.println("Property " + Registry.ACTIVE_USER_NAME.getName() + " is not set, also hasValue() returns false: " + Registry.ACTIVE_USER_NAME.hasValue());
+        }
+
+        Registry.withLock(() -> {
+            System.out.println("All properties:");
+            System.out.println(Registry.r.listProperties());
+        });
+
+        try {
+            Registry.DAYS.set("Wrong day constant.");
+        }
+        catch (final Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
